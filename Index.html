@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Candidate Evaluation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .question {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .question h3 {
+            color: #555;
+            margin-top: 0;
+        }
+        .options {
+            margin-top: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .calculate-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+        }
+        .calculate-btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+        .result.excellent {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.good {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .result.average {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .result.poor {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .feedback {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .feedback h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .strength {
+            color: #155724;
+            margin: 5px 0;
+        }
+        .weakness {
+            color: #721c24;
+            margin: 5px 0;
+        }
+        .neutral {
+            color: #856404;
+            margin: 5px 0;
+        }
+        .candidate-info {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .candidate-info h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .info-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .info-field {
+            flex: 1;
+        }
+        .info-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .info-field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .info-field input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        .comparison-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .comparison-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .comparison-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .comparison-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .score-cell {
+            font-weight: bold;
+        }
+        .score-excellent { color: #155724; }
+        .score-good { color: #0c5460; }
+        .score-average { color: #856404; }
+        .score-poor { color: #721c24; }
+        .save-candidate-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .save-candidate-btn:hover {
+            background-color: #218838;
+        }
+        .clear-comparison-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .clear-comparison-btn:hover {
+            background-color: #c82333;
+        }
+        .no-candidates {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .language-selector select {
+            border: none;
+            background: none;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .language-selector select:focus {
+            outline: none;
+        }
+        .container {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-selector">
+            <select id="languageSelect" onchange="changeLanguage()">
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="pt">🇧🇷 Português</option>
+                <option value="it">🇮🇹 Italiano</option>
+            </select>
+        </div>
+        <h1 data-translate="title">Sales Candidate Evaluation</h1>
+        
+        <form id="evaluationForm">
+            <div class="candidate-info">
+                <h3 data-translate="candidateInfo">Candidate Information</h3>
+                <div class="info-row">
+                    <div class="info-field">
+                        <label for="candidateName" data-translate="candidateName">Candidate Name:</label>
+                        <input type="text" id="candidateName" name="candidateName" required>
+                    </div>
+                    <div class="info-field">
+                        <label for="position" data-translate="position">Position Applied For:</label>
+                        <input type="text" id="position" name="position" required>
+                    </div>
+                </div>
+            </div>
+            <div class="question">
+                <h3 data-translate="q1Title">1. How would you handle a customer objection about price?</h3>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="4"><span data-translate="q1a"> Acknowledge the concern, demonstrate value, and offer flexible solutions</span></label>
+                    <label><input type="radio" name="q1" value="3"><span data-translate="q1b"> Explain the product benefits and justify the price</span></label>
+                    <label><input type="radio" name="q1" value="2"><span data-translate="q1c"> Offer a discount immediately</span></label>
+                    <label><input type="radio" name="q1" value="1"><span data-translate="q1d"> Argue that the price is already competitive</span></label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3 data-translate="q2Title">2. What's your approach to building rapport with new prospects?</h3>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="4"><span data-translate="q2a"> Research their background, ask open-ended questions, and find common ground</span></label>
+                    <label><input type="radio" name="q2" value="3"><span data-translate="q2b"> Ask about their business needs and challenges</span></label>
+                    <label><input type="radio" name="q2" value="2"><span data-translate="q2c"> Start with small talk about general topics</span></label>
+                    <label><input type="radio" name="q2" value="1"><span data-translate="q2d"> Jump straight into the product presentation</span></label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3 data-translate="q3Title">3. How do you prioritize your sales activities?</h3>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="4"><span data-translate="q3a"> Use a systematic approach based on lead quality, deal size, and closing probability</span></label>
+                    <label><input type="radio" name="q3" value="3"><span data-translate="q3b"> Focus on the largest potential deals first</span></label>
+                    <label><input type="radio" name="q3" value="2"><span data-translate="q3c"> Work through leads in the order they came in</span></label>
+                    <label><input type="radio" name="q3" value="1"><span data-translate="q3d"> Focus on the easiest deals to close</span></label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3 data-translate="q4Title">4. What do you do when a prospect goes silent after initial interest?</h3>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="4"><span data-translate="q4a"> Send a thoughtful follow-up with new value, then use multiple touchpoints with varying approaches</span></label>
+                    <label><input type="radio" name="q4" value="3"><span data-translate="q4b"> Call them directly to check on their decision timeline</span></label>
+                    <label><input type="radio" name="q4" value="2"><span data-translate="q4c"> Send a few follow-up emails over several weeks</span></label>
+                    <label><input type="radio" name="q4" value="1"><span data-translate="q4d"> Assume they're not interested and move on</span></label>
+                </div>
+            </div>
+
+            <button type="button" class="calculate-btn" onclick="calculateScore()" data-translate="calculateBtn">Calculate Score</button>
+        </form>
+
+        <div id="result" class="result"></div>
+        
+        <div class="comparison-section">
+            <h2 data-translate="comparisonTitle">Candidate Comparison</h2>
+            <p data-translate="comparisonDesc">Save evaluated candidates to compare them side by side.</p>
+            <div style="margin-bottom: 10px;">
+                <label data-translate="sortBy">Sort by: 
+                    <select id="sortSelect" onchange="sortCandidates()">
+                        <option value="name" data-translate="sortName">Name</option>
+                        <option value="totalScore" data-translate="sortScore">Total Score</option>
+                        <option value="position" data-translate="sortPosition">Position</option>
+                        <option value="timestamp" data-translate="sortDate">Date Evaluated</option>
+                    </select>
+                </label>
+            </div>
+            <div id="comparisonTable">
+                <div class="no-candidates" data-translate="noCandidates">No candidates saved for comparison yet.</div>
+            </div>
+            <button type="button" class="clear-comparison-btn" onclick="clearComparison()" style="display: none;" id="clearBtn" data-translate="clearBtn">Clear All Candidates</button>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                title: "Sales Candidate Evaluation",
+                candidateInfo: "Candidate Information",
+                candidateName: "Candidate Name:",
+                position: "Position Applied For:",
+                q1Title: "1. How would you handle a customer objection about price?",
+                q1a: " Acknowledge the concern, demonstrate value, and offer flexible solutions",
+                q1b: " Explain the product benefits and justify the price",
+                q1c: " Offer a discount immediately",
+                q1d: " Argue that the price is already competitive",
+                q2Title: "2. What's your approach to building rapport with new prospects?",
+                q2a: " Research their background, ask open-ended questions, and find common ground",
+                q2b: " Ask about their business needs and challenges",
+                q2c: " Start with small talk about general topics",
+                q2d: " Jump straight into the product presentation",
+                q3Title: "3. How do you prioritize your sales activities?",
+                q3a: " Use a systematic approach based on lead quality, deal size, and closing probability",
+                q3b: " Focus on the largest potential deals first",
+                q3c: " Work through leads in the order they came in",
+                q3d: " Focus on the easiest deals to close",
+                q4Title: "4. What do you do when a prospect goes silent after initial interest?",
+                q4a: " Send a thoughtful follow-up with new value, then use multiple touchpoints with varying approaches",
+                q4b: " Call them directly to check on their decision timeline",
+                q4c: " Send a few follow-up emails over several weeks",
+                q4d: " Assume they're not interested and move on",
+                calculateBtn: "Calculate Score",
+                comparisonTitle: "Candidate Comparison",
+                comparisonDesc: "Save evaluated candidates to compare them side by side.",
+                sortBy: "Sort by:",
+                sortName: "Name",
+                sortScore: "Total Score",
+                sortPosition: "Position",
+                sortDate: "Date Evaluated",
+                noCandidates: "No candidates saved for comparison yet.",
+                clearBtn: "Clear All Candidates",
+                saveBtn: "Save to Comparison",
+                candidate: "Candidate:",
+                score: "Score:",
+                rating: "Rating:",
+                strengths: "Strengths:",
+                moderate: "Moderate:",
+                improvements: "Areas for Improvement:",
+                detailedFeedback: "Detailed Feedback:",
+                objectionHandling: "Objection Handling",
+                rapportBuilding: "Rapport Building",
+                activityPrioritization: "Activity Prioritization",
+                followupStrategy: "Follow-up Strategy",
+                excellent: "Excellent",
+                good: "Good",
+                average: "Average",
+                poor: "Poor",
+                fillAllFields: "Please fill in candidate name and position before calculating the score.",
+                answerAllQuestions: "Please answer all questions before calculating the score."
+            },
+            es: {
+                title: "Evaluación de Candidatos de Ventas",
+                candidateInfo: "Información del Candidato",
+                candidateName: "Nombre del Candidato:",
+                position: "Puesto al que Aplica:",
+                q1Title: "1. ¿Cómo manejarías una objeción del cliente sobre el precio?",
+                q1a: " Reconocer la preocupación, demostrar valor y ofrecer soluciones flexibles",
+                q1b: " Explicar los beneficios del producto y justificar el precio",
+                q1c: " Ofrecer un descuento inmediatamente",
+                q1d: " Argumentar que el precio ya es competitivo",
+                q2Title: "2. ¿Cuál es tu enfoque para construir rapport con nuevos prospectos?",
+                q2a: " Investigar su historial, hacer preguntas abiertas y encontrar puntos en común",
+                q2b: " Preguntar sobre sus necesidades comerciales y desafíos",
+                q2c: " Comenzar con charla casual sobre temas generales",
+                q2d: " Saltar directamente a la presentación del producto",
+                q3Title: "3. ¿Cómo priorizas tus actividades de ventas?",
+                q3a: " Usar un enfoque sistemático basado en calidad de leads, tamaño del negocio y probabilidad de cierre",
+                q3b: " Enfocarse en los negocios potenciales más grandes primero",
+                q3c: " Trabajar los leads en el orden que llegaron",
+                q3d: " Enfocarse en los negocios más fáciles de cerrar",
+                q4Title: "4. ¿Qué haces cuando un prospecto se queda en silencio después del interés inicial?",
+                q4a: " Enviar un seguimiento reflexivo con nuevo valor, luego usar múltiples puntos de contacto con enfoques variados",
+                q4b: " Llamarlos directamente para verificar su cronograma de decisión",
+                q4c: " Enviar algunos correos de seguimiento durante varias semanas",
+                q4d: " Asumir que no están interesados y seguir adelante",
+                calculateBtn: "Calcular Puntaje",
+                comparisonTitle: "Comparación de Candidatos",
+                comparisonDesc: "Guarda candidatos evaluados para compararlos lado a lado.",
+                sortBy: "Ordenar por:",
+                sortName: "Nombre",
+                sortScore: "Puntaje Total",
+                sortPosition: "Puesto",
+                sortDate: "Fecha de Evaluación",
+                noCandidates: "Aún no hay candidatos guardados para comparación.",
+                clearBtn: "Limpiar Todos los Candidatos",
+                saveBtn: "Guardar para Comparación",
+                candidate: "Candidato:",
+                score: "Puntaje:",
+                rating: "Calificación:",
+                strengths: "Fortalezas:",
+                moderate: "Moderado:",
+                improvements: "Áreas de Mejora:",
+                detailedFeedback: "Retroalimentación Detallada:",
+                objectionHandling: "Manejo de Objeciones",
+                rapportBuilding: "Construcción de Rapport",
+                activityPrioritization: "Priorización de Actividades",
+                followupStrategy: "Estrategia de Seguimiento",
+                excellent: "Excelente",
+                good: "Bueno",
+                average: "Promedio",
+                poor: "Deficiente",
+                fillAllFields: "Por favor complete el nombre del candidato y el puesto antes de calcular el puntaje.",
+                answerAllQuestions: "Por favor responda todas las preguntas antes de calcular el puntaje."
+            },
+            pt: {
+                title: "Avaliação de Candidatos de Vendas",
+                candidateInfo: "Informações do Candidato",
+                candidateName: "Nome do Candidato:",
+                position: "Posição Aplicada:",
+                q1Title: "1. Como você lidaria com uma objeção do cliente sobre preço?",
+                q1a: " Reconhecer a preocupação, demonstrar valor e oferecer soluções flexíveis",
+                q1b: " Explicar os benefícios do produto e justificar o preço",
+                q1c: " Oferecer um desconto imediatamente",
+                q1d: " Argumentar que o preço já é competitivo",
+                q2Title: "2. Qual é sua abordagem para construir rapport com novos prospects?",
+                q2a: " Pesquisar seu histórico, fazer perguntas abertas e encontrar pontos em comum",
+                q2b: " Perguntar sobre suas necessidades comerciais e desafios",
+                q2c: " Começar com conversa casual sobre tópicos gerais",
+                q2d: " Pular direto para a apresentação do produto",
+                q3Title: "3. Como você prioriza suas atividades de vendas?",
+                q3a: " Usar uma abordagem sistemática baseada na qualidade dos leads, tamanho do negócio e probabilidade de fechamento",
+                q3b: " Focar nos maiores negócios potenciais primeiro",
+                q3c: " Trabalhar os leads na ordem que chegaram",
+                q3d: " Focar nos negócios mais fáceis de fechar",
+                q4Title: "4. O que você faz quando um prospect fica em silêncio após interesse inicial?",
+                q4a: " Enviar um follow-up reflexivo com novo valor, então usar múltiplos pontos de contato com abordagens variadas",
+                q4b: " Ligá-los diretamente para verificar seu cronograma de decisão",
+                q4c: " Enviar alguns e-mails de follow-up durante várias semanas",
+                q4d: " Assumir que não estão interessados e seguir em frente",
+                calculateBtn: "Calcular Pontuação",
+                comparisonTitle: "Comparação de Candidatos",
+                comparisonDesc: "Salve candidatos avaliados para compará-los lado a lado.",
+                sortBy: "Ordenar por:",
+                sortName: "Nome",
+                sortScore: "Pontuação Total",
+                sortPosition: "Posição",
+                sortDate: "Data Avaliada",
+                noCandidates: "Nenhum candidato salvo para comparação ainda.",
+                clearBtn: "Limpar Todos os Candidatos",
+                saveBtn: "Salvar para Comparação",
+                candidate: "Candidato:",
+                score: "Pontuação:",
+                rating: "Avaliação:",
+                strengths: "Pontos Fortes:",
+                moderate: "Moderado:",
+                improvements: "Áreas para Melhoria:",
+                detailedFeedback: "Feedback Detalhado:",
+                objectionHandling: "Tratamento de Objeções",
+                rapportBuilding: "Construção de Rapport",
+                activityPrioritization: "Priorização de Atividades",
+                followupStrategy: "Estratégia de Follow-up",
+                excellent: "Excelente",
+                good: "Bom",
+                average: "Médio",
+                poor: "Ruim",
+                fillAllFields: "Por favor preencha o nome do candidato e a posição antes de calcular a pontuação.",
+                answerAllQuestions: "Por favor responda todas as perguntas antes de calcular a pontuação."
+            },
+            it: {
+                title: "Valutazione Candidati Vendite",
+                candidateInfo: "Informazioni del Candidato",
+                candidateName: "Nome del Candidato:",
+                position: "Posizione Applicata:",
+                q1Title: "1. Come gestiresti un'obiezione del cliente sul prezzo?",
+                q1a: " Riconoscere la preoccupazione, dimostrare valore e offrire soluzioni flessibili",
+                q1b: " Spiegare i benefici del prodotto e giustificare il prezzo",
+                q1c: " Offrire uno sconto immediatamente",
+                q1d: " Sostenere che il prezzo è già competitivo",
+                q2Title: "2. Qual è il tuo approccio per costruire rapport con nuovi prospects?",
+                q2a: " Ricercare il loro background, fare domande aperte e trovare punti in comune",
+                q2b: " Chiedere delle loro esigenze commerciali e sfide",
+                q2c: " Iniziare con chiacchiere casuali su argomenti generali",
+                q2d: " Saltare direttamente alla presentazione del prodotto",
+                q3Title: "3. Come dai priorità alle tue attività di vendita?",
+                q3a: " Usare un approccio sistematico basato sulla qualità dei lead, dimensione dell'affare e probabilità di chiusura",
+                q3b: " Concentrarsi sui più grandi affari potenziali prima",
+                q3c: " Lavorare i lead nell'ordine in cui sono arrivati",
+                q3d: " Concentrarsi sugli affari più facili da chiudere",
+                q4Title: "4. Cosa fai quando un prospect rimane silenzioso dopo l'interesse iniziale?",
+                q4a: " Inviare un follow-up riflessivo con nuovo valore, poi usare multipli punti di contatto con approcci variati",
+                q4b: " Chiamarli direttamente per verificare la loro tempistica di decisione",
+                q4c: " Inviare alcune email di follow-up per diverse settimane",
+                q4d: " Assumere che non siano interessati e andare avanti",
+                calculateBtn: "Calcola Punteggio",
+                comparisonTitle: "Confronto Candidati",
+                comparisonDesc: "Salva candidati valutati per confrontarli fianco a fianco.",
+                sortBy: "Ordina per:",
+                sortName: "Nome",
+                sortScore: "Punteggio Totale",
+                sortPosition: "Posizione",
+                sortDate: "Data di Valutazione",
+                noCandidates: "Nessun candidato salvato per il confronto ancora.",
+                clearBtn: "Cancella Tutti i Candidati",
+                saveBtn: "Salva per Confronto",
+                candidate: "Candidato:",
+                score: "Punteggio:",
+                rating: "Valutazione:",
+                strengths: "Punti di Forza:",
+                moderate: "Moderato:",
+                improvements: "Aree di Miglioramento:",
+                detailedFeedback: "Feedback Dettagliato:",
+                objectionHandling: "Gestione delle Obiezioni",
+                rapportBuilding: "Costruzione del Rapport",
+                activityPrioritization: "Prioritizzazione delle Attività",
+                followupStrategy: "Strategia di Follow-up",
+                excellent: "Eccellente",
+                good: "Buono",
+                average: "Medio",
+                poor: "Scarso",
+                fillAllFields: "Si prega di compilare il nome del candidato e la posizione prima di calcolare il punteggio.",
+                answerAllQuestions: "Si prega di rispondere a tutte le domande prima di calcolare il punteggio."
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+            translatePage();
+        }
+
+        function translatePage() {
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+        }
+
+        function getTranslation(key) {
+            return translations[currentLanguage][key] || translations['en'][key] || key;
+        }
+
+        function calculateScore() {
+            const form = document.getElementById('evaluationForm');
+            const formData = new FormData(form);
+            let totalScore = 0;
+            let answeredQuestions = 0;
+            const scores = {};
+
+            const questionAreas = {
+                'q1': getTranslation('objectionHandling'),
+                'q2': getTranslation('rapportBuilding'),
+                'q3': getTranslation('activityPrioritization'),
+                'q4': getTranslation('followupStrategy')
+            };
+
+            for (let i = 1; i <= 4; i++) {
+                const answer = formData.get(`q${i}`);
+                if (answer) {
+                    const score = parseInt(answer);
+                    totalScore += score;
+                    answeredQuestions++;
+                    scores[`q${i}`] = score;
+                }
+            }
+
+            const resultDiv = document.getElementById('result');
+            const candidateName = document.getElementById('candidateName').value;
+            const position = document.getElementById('position').value;
+            
+            if (!candidateName || !position) {
+                resultDiv.innerHTML = getTranslation('fillAllFields');
+                resultDiv.className = 'result poor';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            if (answeredQuestions < 4) {
+                resultDiv.innerHTML = getTranslation('answerAllQuestions');
+                resultDiv.className = 'result poor';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const percentage = (totalScore / 16) * 100;
+            let rating, className;
+
+            if (percentage >= 85) {
+                rating = getTranslation('excellent');
+                className = 'excellent';
+            } else if (percentage >= 70) {
+                rating = getTranslation('good');
+                className = 'good';
+            } else if (percentage >= 55) {
+                rating = getTranslation('average');
+                className = 'average';
+            } else {
+                rating = getTranslation('poor');
+                className = 'poor';
+            }
+
+            let feedbackHTML = '';
+            const strengths = [];
+            const weaknesses = [];
+            const neutral = [];
+
+            for (const [question, score] of Object.entries(scores)) {
+                const area = questionAreas[question];
+                if (score === 4) {
+                    strengths.push(area);
+                } else if (score === 1 || score === 2) {
+                    weaknesses.push(area);
+                } else {
+                    neutral.push(area);
+                }
+            }
+
+            if (strengths.length > 0 || weaknesses.length > 0 || neutral.length > 0) {
+                feedbackHTML = '<div class="feedback"><h4>' + getTranslation('detailedFeedback') + '</h4>';
+                
+                if (strengths.length > 0) {
+                    feedbackHTML += '<div class="strength"><strong>' + getTranslation('strengths') + '</strong> ' + strengths.join(', ') + '</div>';
+                }
+                
+                if (neutral.length > 0) {
+                    feedbackHTML += '<div class="neutral"><strong>' + getTranslation('moderate') + '</strong> ' + neutral.join(', ') + '</div>';
+                }
+                
+                if (weaknesses.length > 0) {
+                    feedbackHTML += '<div class="weakness"><strong>' + getTranslation('improvements') + '</strong> ' + weaknesses.join(', ') + '</div>';
+                }
+                
+                feedbackHTML += '</div>';
+            }
+
+            resultDiv.innerHTML = `
+                <div><strong>${getTranslation('candidate')}</strong> ${candidateName}</div>
+                <div><strong>${getTranslation('position')}</strong> ${position}</div>
+                <div style="margin-top: 15px;">${getTranslation('score')} ${totalScore}/16 (${percentage.toFixed(1)}%)</div>
+                <div>${getTranslation('rating')}: ${rating}</div>
+                ${feedbackHTML}
+                <button type="button" class="save-candidate-btn" onclick="saveCandidate()">${getTranslation('saveBtn')}</button>
+            `;
+            resultDiv.className = `result ${className}`;
+            resultDiv.style.display = 'block';
+        }
+
+        let savedCandidates = [];
+
+        function saveCandidate() {
+            const form = document.getElementById('evaluationForm');
+            const formData = new FormData(form);
+            const candidateName = document.getElementById('candidateName').value;
+            const position = document.getElementById('position').value;
+            
+            let totalScore = 0;
+            const scores = {};
+            const questionAreas = {
+                'q1': getTranslation('objectionHandling'),
+                'q2': getTranslation('rapportBuilding'),
+                'q3': getTranslation('activityPrioritization'),
+                'q4': getTranslation('followupStrategy')
+            };
+
+            for (let i = 1; i <= 4; i++) {
+                const answer = formData.get(`q${i}`);
+                if (answer) {
+                    const score = parseInt(answer);
+                    totalScore += score;
+                    scores[`q${i}`] = score;
+                }
+            }
+
+            const percentage = (totalScore / 16) * 100;
+            let rating;
+            if (percentage >= 85) {
+                rating = getTranslation('excellent');
+            } else if (percentage >= 70) {
+                rating = getTranslation('good');
+            } else if (percentage >= 55) {
+                rating = getTranslation('average');
+            } else {
+                rating = getTranslation('poor');
+            }
+
+            const candidateData = {
+                name: candidateName,
+                position: position,
+                totalScore: totalScore,
+                percentage: percentage,
+                rating: rating,
+                scores: scores,
+                questionAreas: questionAreas,
+                timestamp: new Date().toLocaleString()
+            };
+
+            const existingIndex = savedCandidates.findIndex(c => c.name === candidateName && c.position === position);
+            if (existingIndex !== -1) {
+                savedCandidates[existingIndex] = candidateData;
+            } else {
+                savedCandidates.push(candidateData);
+            }
+
+            updateComparisonTable();
+            alert(`${candidateName} ${getTranslation('saveBtn').toLowerCase()}!`);
+        }
+
+        function updateComparisonTable() {
+            const comparisonDiv = document.getElementById('comparisonTable');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            if (savedCandidates.length === 0) {
+                comparisonDiv.innerHTML = `<div class="no-candidates">${getTranslation('noCandidates')}</div>`;
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>${getTranslation('candidate').replace(':', '')}</th>
+                            <th>${getTranslation('position').replace(':', '')}</th>
+                            <th>${getTranslation('sortScore')}</th>
+                            <th>${getTranslation('rating')}</th>
+                            <th>${getTranslation('objectionHandling')}</th>
+                            <th>${getTranslation('rapportBuilding')}</th>
+                            <th>${getTranslation('activityPrioritization')}</th>
+                            <th>${getTranslation('followupStrategy')}</th>
+                            <th>${getTranslation('sortDate')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            savedCandidates.forEach(candidate => {
+                const ratingClass = candidate.rating.toLowerCase();
+                tableHTML += `
+                    <tr>
+                        <td><strong>${candidate.name}</strong></td>
+                        <td>${candidate.position}</td>
+                        <td class="score-cell score-${ratingClass}">${candidate.totalScore}/16 (${candidate.percentage.toFixed(1)}%)</td>
+                        <td class="score-cell score-${ratingClass}">${candidate.rating}</td>
+                        <td>${candidate.scores.q1}/4</td>
+                        <td>${candidate.scores.q2}/4</td>
+                        <td>${candidate.scores.q3}/4</td>
+                        <td>${candidate.scores.q4}/4</td>
+                        <td>${candidate.timestamp}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            comparisonDiv.innerHTML = tableHTML;
+            clearBtn.style.display = 'block';
+        }
+
+        function clearComparison() {
+            if (confirm('Are you sure you want to clear all saved candidates?')) {
+                savedCandidates = [];
+                updateComparisonTable();
+            }
+        }
+
+        function sortCandidates() {
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            savedCandidates.sort((a, b) => {
+                switch(sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'totalScore':
+                        return b.totalScore - a.totalScore; // Descending order for scores
+                    case 'position':
+                        return a.position.localeCompare(b.position);
+                    case 'timestamp':
+                        return new Date(b.timestamp) - new Date(a.timestamp); // Most recent first
+                    default:
+                        return 0;
+                }
+            });
+            
+            updateComparisonTable();
+        }
+    </script>
+</body>
+</html>
